@@ -1,0 +1,1 @@
+export type Country = "UK" | "PL" | "GE";

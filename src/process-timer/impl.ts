@@ -1,4 +1,5 @@
 import { ProcessTimer } from ".";
+import { logger } from "../logger";
 
 export class ProcessTimerImpl implements ProcessTimer{
     private timeStart:number;
@@ -12,17 +13,19 @@ export class ProcessTimerImpl implements ProcessTimer{
     }
     start(){
         this.timeStart = performance.now();
+        logger.info("Timer started");
     }
     markStep(msg: string){
         this.steps.push(msg);
+        const step = this.steps.indexOf(msg);
+
+        logger.info(`${step}: ${msg}`);
     }
     end(){
         this.timeEnd = performance.now();
-        for(let i = 0; i<this.steps.length; i++){
-            console.log(`${1}: ${this.steps[i]}`);
-        }
+        logger.info(`Used marks: ${this.steps.length}`);
 
         const totalTime = (this.timeEnd-this.timeStart)/1000; //seconds
-        console.log(`Total time: ${totalTime}`);
+        logger.info(`Total time: ${totalTime}`);
     }
 }

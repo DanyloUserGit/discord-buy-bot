@@ -1,0 +1,4 @@
+{"level":"info","message":"Timer started","service":"logger"}
+{"level":"info","message":"0: Starting loop","service":"logger"}
+{"level":"info","message":"Used marks: 1","service":"logger"}
+{"level":"info","message":"Total time: 1.7656047","service":"logger"}

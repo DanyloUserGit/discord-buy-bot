@@ -1,0 +1,20 @@
+{
+  "name": "discord-buy-bot",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/DanyloUserGit/discord-buy-bot#readme",
+  "bugs": {
+    "url": "https://github.com/DanyloUserGit/discord-buy-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanyloUserGit/discord-buy-bot.git"
+  },
+  "license": "ISC",
+  "author": "Danylo",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

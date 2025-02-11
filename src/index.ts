@@ -1,12 +1,11 @@
-import { ProcessTimerImpl } from "./process-timer/impl";
+import { ParserVintedImpl } from "./parser/parser-vinted/impl";
 
-const timer = new ProcessTimerImpl();
+const parser = new ParserVintedImpl();
 
-timer.start()
-let a:number = 0;
-timer.markStep("Starting loop")
-for(let i = 0; i<=10000; i++){
-    a+=i;
-    console.log(a)
-}
-timer.end()
+parser.addFilter({
+    order: "newest_first",
+    disabled_personalization:true,
+    page: 1,
+    time:1738850547
+});
+parser.autorun("PL")

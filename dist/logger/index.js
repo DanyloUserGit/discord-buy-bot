@@ -7,10 +7,11 @@ exports.logger = void 0;
 const winston_1 = __importDefault(require("winston"));
 exports.logger = winston_1.default.createLogger({
     level: 'info',
-    format: winston_1.default.format.json(),
+    format: winston_1.default.format.cli(),
     defaultMeta: { service: 'logger' },
     transports: [
         new winston_1.default.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston_1.default.transports.Console(),
         new winston_1.default.transports.File({ filename: 'combined.log' }),
     ],
 });

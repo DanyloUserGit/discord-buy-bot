@@ -2,13 +2,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID } = process.env;
+const { APP_ID, PUBLIC_KEY, BOT_TOKEN, NODE_ENV, MAIN_CHANNEL } = process.env;
 
-if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
+if (!APP_ID || !PUBLIC_KEY || !BOT_TOKEN || !NODE_ENV || !MAIN_CHANNEL ) {
   throw new Error("Missing environment variables");
 }
 
 export const AppConfig = {
-  DISCORD_TOKEN,
-  DISCORD_CLIENT_ID,
+  APP_ID,
+  PUBLIC_KEY,
+  BOT_TOKEN,
+  NODE_ENV,
+  MAIN_CHANNEL
 };

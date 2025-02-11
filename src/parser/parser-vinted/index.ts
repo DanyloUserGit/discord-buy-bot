@@ -3,8 +3,10 @@ import { Country } from "./contracts/types";
 
 export interface ParserVinted {
     addFilter:(filter:Filter)=>void;
-    parse:(country: Country, time:number)=>void;
+    parse:( time:number)=>void;
     connect: (country:Country)=>void;
-    generateUrl: (country:Country)=>void;
-    autorun: (country: Country)=>void;
+    generateUrl: ()=>void;
+    autorun: ()=>void;
+    setCountry: (country: Country)=>void;
+    setFilterValue: (val:{})=>void;
 }

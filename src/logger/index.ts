@@ -2,7 +2,7 @@ import winston from "winston";
 
 export const logger = winston.createLogger({
     level: 'info',
-    format: winston.format.json(),
+    format: winston.format.cli(),
     defaultMeta: { service: 'logger' },
     transports: [
       //
@@ -14,6 +14,7 @@ export const logger = winston.createLogger({
       // - Write all logs with importance level of `info` or higher to `combined.log`
       //   (i.e., fatal, error, warn, and info, but not trace)
       //
+      new winston.transports.Console(),
       new winston.transports.File({ filename: 'combined.log' }),
     ],
   });

@@ -54,17 +54,33 @@ class ParserVintedImpl {
             PL: "https://www.vinted.pl/",
             GE: "https://vinted.de/"
         };
+        this.country = "PL";
     }
-    generateUrl(country) {
+    setCountry(country) {
+        this.country = country;
+    }
+    generateUrl() {
         if (this.filter) {
             const filterKeys = Object.keys(this.filter);
             const filterValues = Object.values(this.filter);
-            this.url = `${this.urls[country]}catalog?${filterKeys.map((filter, index) => index !== filterKeys.length - 1 ?
-                `${filter}=${filterValues[index]}&` : `${filter}=${filterValues[index]}`)}`.replaceAll(",", "");
+            this.url = `${this.urls[this.country]}catalog?${filterKeys
+                .map((filter, index) => {
+                const value = filterValues[index];
+                if (filter === "brand_ids" && Array.isArray(value)) {
+                    return value.map((id) => `brand_ids[]=${id}`).join("&");
+                }
+                return `${filter}=${value}`;
+            })
+                .join("&")}`;
         }
     }
     addFilter(filter) {
         this.filter = { ...filter };
+    }
+    ;
+    setFilterValue(val) {
+        if (this.filter)
+            this.filter = { ...this.filter, ...val };
     }
     ;
     async connect() {
@@ -107,7 +123,7 @@ class ParserVintedImpl {
         }
     }
     ;
-    parse(country, time) {
+    parse(time) {
         if (this.document) {
             const $ = cheerio.load(this.document);
             const desc = $('.feed-grid__item').first();
@@ -119,11 +135,11 @@ class ParserVintedImpl {
                 const newElement = $(`[data-testid="${newTestId}"]`);
                 this.item = {
                     name: descs[0],
-                    price: `${types_1.countryToCurrency[country]} ${newElement.text().trim().split(" ")[0].replaceAll(" ", "").replace("złw", "")}`,
+                    price: `${types_1.countryToCurrency[this.country]} ${newElement.text().trim().split(" ")[0].replaceAll(" ", "").replace("złw", "")}`,
                     link: "",
                     image_url: "",
                     size: descs[1],
-                    country,
+                    country: this.country,
                     time
                 };
                 const imageId = testId.replace('title-container', 'image');
@@ -143,19 +159,18 @@ class ParserVintedImpl {
         }
     }
     ;
-    async autorun(country, attempts = 0, maxAttempts = 10) {
+    async autorun(attempts = 0, maxAttempts = 10) {
         try {
             this.timer.start();
             if (this.filter) {
                 const requestTime = Math.floor(new Date().getTime() / 1000.0);
                 this.filter.time = requestTime;
-                this.generateUrl(country);
+                this.generateUrl();
                 await this.connect();
-                await this.parse(country, requestTime);
+                await this.parse(requestTime);
                 this.timer.end();
                 if (this.item)
-                    logger_1.logger.info(JSON.stringify(this.item));
-                return await this.item;
+                    return this.item;
             }
         }
         catch (error) {

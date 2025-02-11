@@ -4,6 +4,7 @@ export interface Filter {
     order: OrderFilter;
     disabled_personalization:boolean;
     page: number;
+    brand_ids?:number[];
     time:number;
 }
 

@@ -5,10 +5,12 @@ export interface Filter {
     disabled_personalization:boolean;
     page: number;
     brand_ids?:number[];
+    catalog?:number[];
     time:number;
 }
 
 export interface Item {
+    id: string;
     price: string;
     link: string;
     image_url: string;

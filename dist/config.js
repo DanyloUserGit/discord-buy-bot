@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppConfig = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const { APP_ID, PUBLIC_KEY, BOT_TOKEN, NODE_ENV, MAIN_CHANNEL } = process.env;
-if (!APP_ID || !PUBLIC_KEY || !BOT_TOKEN || !NODE_ENV || !MAIN_CHANNEL) {
+const { APP_ID, PUBLIC_KEY, BOT_TOKEN, NODE_ENV, MAIN_CHANNEL, APPLICATION_ID } = process.env;
+if (!APP_ID || !PUBLIC_KEY || !BOT_TOKEN || !NODE_ENV || !MAIN_CHANNEL || !APPLICATION_ID) {
     throw new Error("Missing environment variables");
 }
 exports.AppConfig = {
@@ -15,5 +15,6 @@ exports.AppConfig = {
     PUBLIC_KEY,
     BOT_TOKEN,
     NODE_ENV,
-    MAIN_CHANNEL
+    MAIN_CHANNEL,
+    APPLICATION_ID
 };

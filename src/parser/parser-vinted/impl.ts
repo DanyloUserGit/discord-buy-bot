@@ -7,31 +7,38 @@ import { Filter, Item } from './contracts';
 import { Country, countryToCurrency } from './contracts/types';
 import { ParserVinted } from './index';
 import axios from 'axios';
+import { Current } from '../../utils/conventer/contracts';
+import { Conventer } from '../../utils/conventer';
+import { ConventerImpl } from '../../utils/conventer/impl';
 
 export class ParserVintedImpl implements ParserVinted{
     public urls: string[] = [];
     private base: string[];
+    public countries: Country[];
     private filter: Filter | null = null;
     public document: string | null = null;
     public item: Item | null = null;
     private timer: ProcessTimer;
+    private conventer: Conventer;
     public startable: boolean = false;
     public oauth_token: string = "";
     
 
     constructor () {
         this.timer = new ProcessTimerImpl();
+        this.conventer = new ConventerImpl();
 
         this.base = [
             "https://vinted.co.uk/",
             "https://www.vinted.pl/",
             "https://vinted.de/"
         ];
+        this.countries = ['UK', 'PL', 'GE'];
     }
     setOauthToken(token: string){
         this.oauth_token = token;
     };
-    generateUrl(){
+    generateUrl(current: Current){
         if(this.filter){
             const filterKeys = Object.keys(this.filter);
             const filterValues = Object.values(this.filter);
@@ -46,10 +53,19 @@ export class ParserVintedImpl implements ParserVinted{
                       if (filter === "catalog" && Array.isArray(value)) {
                         return value.map((id) => `catalog[]=${id}`).join("&");
                       }
-    
+                      
+                      if(filter === "price_from"){
+                        return `price_from=${this.conventer.convertTo(this.countries[i], current, parseFloat(value))}`;
+                      }
+
+                      if(filter === "price_to"){
+                        return `price_to=${this.conventer.convertTo(this.countries[i], current, parseFloat(value))}&currrency=${countryToCurrency[this.countries[i]]}`;
+                      }
+
                       return `${filter}=${value}`;
                     })
                     .join("&")}`;
+                    console.log(this.urls[i])
             } 
         }
     }

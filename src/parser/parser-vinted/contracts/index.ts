@@ -1,4 +1,4 @@
-import { Country, OrderFilter } from "./types";
+import { Country, Currency, OrderFilter } from "./types";
 
 export interface Filter {
     order: OrderFilter;
@@ -6,9 +6,11 @@ export interface Filter {
     page: number;
     brand_ids?:number[];
     catalog?:number[];
+    price_from?: number;
+    price_to?: number;
+    currency?: Currency;
     time:number;
 }
-
 export interface Item {
     id: string;
     price: string;

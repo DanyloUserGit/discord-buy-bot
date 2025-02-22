@@ -43,6 +43,7 @@ const logger_1 = require("../../logger");
 const impl_1 = require("../../process-timer/impl");
 const types_1 = require("./contracts/types");
 const axios_1 = __importDefault(require("axios"));
+const impl_2 = require("../../utils/conventer/impl");
 class ParserVintedImpl {
     constructor() {
         this.urls = [];
@@ -52,17 +53,19 @@ class ParserVintedImpl {
         this.startable = false;
         this.oauth_token = "";
         this.timer = new impl_1.ProcessTimerImpl();
+        this.conventer = new impl_2.ConventerImpl();
         this.base = [
             "https://vinted.co.uk/",
             "https://www.vinted.pl/",
             "https://vinted.de/"
         ];
+        this.countries = ['UK', 'PL', 'GE'];
     }
     setOauthToken(token) {
         this.oauth_token = token;
     }
     ;
-    generateUrl() {
+    generateUrl(current) {
         if (this.filter) {
             const filterKeys = Object.keys(this.filter);
             const filterValues = Object.values(this.filter);
@@ -76,9 +79,16 @@ class ParserVintedImpl {
                     if (filter === "catalog" && Array.isArray(value)) {
                         return value.map((id) => `catalog[]=${id}`).join("&");
                     }
+                    if (filter === "price_from") {
+                        return `price_from=${this.conventer.convertTo(this.countries[i], current, parseFloat(value))}`;
+                    }
+                    if (filter === "price_to") {
+                        return `price_to=${this.conventer.convertTo(this.countries[i], current, parseFloat(value))}&currrency=${types_1.countryToCurrency[this.countries[i]]}`;
+                    }
                     return `${filter}=${value}`;
                 })
                     .join("&")}`;
+                console.log(this.urls[i]);
             }
         }
     }

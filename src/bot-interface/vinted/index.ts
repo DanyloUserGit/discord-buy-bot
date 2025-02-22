@@ -37,7 +37,6 @@ export const filterPannel:ButtonsPanel = {
     .setColor("#0099ff")
     .setTitle("Filter pannel"),
     buttons: new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId("button_brand").setLabel("Brand").setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId("button_men").setLabel("Men").setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId("button_women").setLabel("Women").setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId("button_filter_back").setLabel("<- Back").setStyle(ButtonStyle.Danger),

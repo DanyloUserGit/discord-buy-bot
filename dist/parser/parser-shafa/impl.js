@@ -36,28 +36,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ParserOlxIml = void 0;
+exports.ParserShafaImpl = void 0;
+const cheerio = __importStar(require("cheerio"));
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const logger_1 = require("../../logger");
-const cheerio = __importStar(require("cheerio"));
 const impl_1 = require("../../process-timer/impl");
-class ParserOlxIml {
+class ParserShafaImpl {
     constructor() {
-        this.url = null;
+        this.base = "https://shafa.ua/uk";
+        this.baseLink = "https://shafa.ua";
+        this.url = "";
         this.document = null;
         this.shouldReturn = false;
-        this.filter = null;
-        this.item = null;
         this.startable = false;
+        this.item = null;
         this.timer = new impl_1.ProcessTimerImpl();
-        this.base = "https://www.olx.ua/uk/moda-i-stil/";
-        this.linkBase = "https://www.olx.ua";
         this.filter = {
-            nav: {
-                category: "",
-                subcategory: [""]
-            },
-            brand: []
+            category: "",
+            subcategory: ""
         };
     }
     setFilterVal(val) {
@@ -70,20 +66,12 @@ class ParserOlxIml {
     }
     ;
     generateUrl() {
-        const params = new URLSearchParams();
-        params.append('currency', 'UAH');
-        params.append('search[order]', 'created_at:desc');
-        if (this.filter?.price_from && this.filter?.price_to) {
-            params.append('search[filter_float_price:from]', this.filter.price_from.toString());
-            params.append('search[filter_float_price:to]', this.filter.price_to.toString());
-        }
-        if (this.filter?.brand) {
-            for (let i = 0; i < this.filter.brand.length; i++) {
-                params.append(`search[filter_enum_brand][${i}]`, this.filter.brand[i].toLowerCase().replace(/ /g, "_"));
-            }
-        }
-        if (this.filter?.nav) {
-            this.url = `${this.base}${this.filter.nav.category}/${this.filter.nav.subcategory}/?${params.toString()}`;
+        if (this.filter) {
+            this.url = `
+                ${this.base}/${this.filter.category}/${this.filter.subcategory}?${this.filter.brands ?
+                this.filter.brands.map((brand) => `&brands=${brand}`) : ""}${this.filter.price_from
+                && `&price_from=${this.filter.price_from}`}${this.filter.price_to && `&price_to=${this.filter.price_to}`}&sort=4
+            `.replaceAll(",", "");
         }
     }
     ;
@@ -118,7 +106,10 @@ class ParserOlxIml {
             });
             page.on('console', (msg) => { });
             await page.goto(this.url, { waitUntil: "domcontentloaded" });
-            await page.waitForSelector('.css-l9drzq');
+            await page.waitForSelector('.dqgIPe4iXPIqxKvRxLb7.xkYiTLWdBmPaZ0zVk4AF.V1ehXukNrUj9ZohFz9rH.r99Oysrn4ZXToLc1dphl');
+            await page.waitForSelector('.D8o9s7KcxqtQ7bd2ka_W');
+            await page.waitForSelector('.wD1fsK7iYTacsxprHLBA');
+            await page.waitForSelector('.CnMTkDcKcdyrztQsbqaj');
             this.document = await page.content();
             await browser.close();
         }
@@ -130,20 +121,18 @@ class ParserOlxIml {
     parse() {
         if (this.document) {
             const $ = cheerio.load(this.document);
-            const desc = $('.css-l9drzq').first();
-            const link = desc.find('.css-qo0cxu').attr('href');
-            const image = desc.find('.css-8wsg1m').attr('src');
-            const title = desc.find('.css-1sq4ur2').text();
-            const price = desc.find('.css-6j1qjp').text();
-            const size = desc.find('.css-1el9czp').text();
-            if (link && image && this.item?.link !== link) {
+            const desc = $('.dqgIPe4iXPIqxKvRxLb7.xkYiTLWdBmPaZ0zVk4AF.V1ehXukNrUj9ZohFz9rH.r99Oysrn4ZXToLc1dphl');
+            const price = desc.find('.D8o9s7KcxqtQ7bd2ka_W').first().find("p").text();
+            const image = desc.find(".wD1fsK7iYTacsxprHLBA").attr("data-src");
+            const title = desc.find(".CnMTkDcKcdyrztQsbqaj").first().text();
+            const link = desc.find(".CnMTkDcKcdyrztQsbqaj").attr("href");
+            if (image && this.item?.link !== `${this.baseLink}${link}`) {
                 this.shouldReturn = true;
                 this.item = {
-                    link: `${this.linkBase}${link}`,
+                    price,
                     image,
                     title,
-                    price,
-                    size
+                    link: `${this.baseLink}${link}`
                 };
             }
             else {
@@ -172,4 +161,4 @@ class ParserOlxIml {
     }
     ;
 }
-exports.ParserOlxIml = ParserOlxIml;
+exports.ParserShafaImpl = ParserShafaImpl;

@@ -27,7 +27,7 @@ exports.filterPannel = {
     embed: new discord_js_1.EmbedBuilder()
         .setColor("#0099ff")
         .setTitle("Filter pannel"),
-    buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_brand").setLabel("Brand").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_men").setLabel("Men").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_women").setLabel("Women").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_filter_back").setLabel("<- Back").setStyle(discord_js_1.ButtonStyle.Danger), new builders_1.ButtonBuilder().setCustomId("button_next").setLabel("Next page ->").setStyle(discord_js_1.ButtonStyle.Secondary))
+    buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_men").setLabel("Men").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_women").setLabel("Women").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_filter_back").setLabel("<- Back").setStyle(discord_js_1.ButtonStyle.Danger), new builders_1.ButtonBuilder().setCustomId("button_next").setLabel("Next page ->").setStyle(discord_js_1.ButtonStyle.Secondary))
 };
 exports.filterPannelNext = {
     embed: new discord_js_1.EmbedBuilder()

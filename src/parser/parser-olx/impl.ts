@@ -12,6 +12,8 @@ export class ParserOlxIml implements ParserOlx {
     private linkBase: string;
     private url: string | null = null;
     private document: string | null = null;
+    private shouldReturn = false;
+    
     public filter: FilterOlx | null = null;
     public item: ItemOlx | null = null;
     public startable: boolean = false;
@@ -107,14 +109,17 @@ export class ParserOlxIml implements ParserOlx {
             const price = desc.find('.css-6j1qjp').text();
             const size = desc.find('.css-1el9czp').text();
 
-            if(!link || !image) return;
-
-            this.item = {
-                link: `${this.linkBase}${link}`,
-                image,
-                title,
-                price,
-                size
+            if(link && image && this.item?.link!==link){
+                this.shouldReturn=true;
+                this.item = {
+                    link: `${this.linkBase}${link}`,
+                    image,
+                    title,
+                    price,
+                    size
+                }
+            }else{
+                this.shouldReturn=false;
             }
             
         }
@@ -129,7 +134,7 @@ export class ParserOlxIml implements ParserOlx {
             await this.connect();
             this.parse();
             this.timer.end();
-            if(this.item)
+            if(this.item && this.shouldReturn)
                 return this.item;
         } catch (error) {
             logger.error(error);

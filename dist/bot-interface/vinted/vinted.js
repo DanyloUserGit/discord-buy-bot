@@ -306,4 +306,28 @@ function setupEventHandlersVinted(client) {
                 await channel.send({ embeds: [_1.filterPannel.embed], components: [_1.filterPannel.buttons] });
         }
     });
+    client.on('interactionCreate', async (interaction) => {
+        const channel = client.channels.cache.get(config_1.AppConfig.MAIN_CHANNEL);
+        if (interaction.isAutocomplete()) {
+            if (interaction.commandName === 'brandvinted') {
+                await (0, commands_1.autocompleteVinted)(interaction);
+            }
+        }
+        if (interaction.isChatInputCommand()) {
+            if (interaction.commandName === 'brandvinted') {
+                const brand = interaction.options.getString('query');
+                await interaction.reply(`You searched for: **${brand}**`);
+                if (brand && parser.filter) {
+                    if (parser.filter?.brand_ids) {
+                        parser.filter.brand_ids.push(types_1.brandMap[brand]);
+                    }
+                    else {
+                        parser.filter.brand_ids = [types_1.brandMap[brand]];
+                    }
+                }
+                if (channel instanceof discord_js_1.TextChannel)
+                    await channel.send({ embeds: [_1.filterPannel.embed], components: [_1.filterPannel.buttons] });
+            }
+        }
+    });
 }

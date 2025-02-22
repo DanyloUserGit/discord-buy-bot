@@ -16,14 +16,29 @@ export function setupCommands(client: Client) {
             .setDescription('Stops sending of products')
             .toJSON(),
         new SlashCommandBuilder()
-            .setName('brand')
+            .setName('brandolx')
             .setDescription('Search with autocomplete')
             .addStringOption(option =>
               option.setName('query')
                 .setDescription('Type to search')
                 .setAutocomplete(true) 
             ),
-            
+        new SlashCommandBuilder()
+        .setName('brandshafa')
+        .setDescription('Search with autocomplete')
+        .addStringOption(option =>
+          option.setName('query')
+            .setDescription('Type to search')
+            .setAutocomplete(true) 
+        ),     
+        new SlashCommandBuilder()
+        .setName('brandvinted')
+        .setDescription('Search with autocomplete')
+        .addStringOption(option =>
+          option.setName('query')
+            .setDescription('Type to search')
+            .setAutocomplete(true) 
+        ),
     ];
     const rest = new REST({ version: '10', timeout: 30000 }).setToken(AppConfig.BOT_TOKEN);
 

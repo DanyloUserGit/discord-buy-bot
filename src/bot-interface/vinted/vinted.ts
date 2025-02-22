@@ -5,7 +5,7 @@ import { startButtonsPannel, filterPannel, menClothingPannel, menAccessoriesPann
 import { AppConfig } from "../../config";
 import { logger } from "../../logger";
 import { brandMap, menClothingMap, menAccesoriesMap, womenClothingMap, womenAccesoriesMap } from "../../parser/parser-vinted/contracts/types";
-import { clearChannel } from "../../utils/commands";
+import { autocompleteVinted, clearChannel } from "../../utils/commands";
 
 const parser = new ParserVintedImpl();
 const conventer = new ConventerImpl();
@@ -314,4 +314,27 @@ export function setupEventHandlersVinted(client: Client) {
                 await channel.send({ embeds: [filterPannel.embed], components: [filterPannel.buttons] });
         }
     })
+        client.on('interactionCreate', async interaction => {
+            const channel = client.channels.cache.get(AppConfig.MAIN_CHANNEL);
+            if(interaction.isAutocomplete()){
+                if (interaction.commandName === 'brandvinted') {
+                    await autocompleteVinted(interaction);
+                } 
+            }
+            if (interaction.isChatInputCommand()) {
+                if (interaction.commandName === 'brandvinted') {
+                    const brand = interaction.options.getString('query');
+                    await interaction.reply(`You searched for: **${brand}**`);
+                    if(brand && parser.filter){
+                        if(parser.filter?.brand_ids){
+                            parser.filter.brand_ids.push(brandMap[brand]);
+                        }else{
+                            parser.filter.brand_ids = [brandMap[brand]];
+                        }
+                    }
+                    if (channel instanceof TextChannel) 
+                        await channel.send({embeds: [filterPannel.embed], components: [filterPannel.buttons]})
+                }
+              }
+        })
 }

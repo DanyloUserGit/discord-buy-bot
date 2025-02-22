@@ -18,7 +18,19 @@ function setupCommands(client) {
             .setDescription('Stops sending of products')
             .toJSON(),
         new discord_js_1.SlashCommandBuilder()
-            .setName('brand')
+            .setName('brandolx')
+            .setDescription('Search with autocomplete')
+            .addStringOption(option => option.setName('query')
+            .setDescription('Type to search')
+            .setAutocomplete(true)),
+        new discord_js_1.SlashCommandBuilder()
+            .setName('brandshafa')
+            .setDescription('Search with autocomplete')
+            .addStringOption(option => option.setName('query')
+            .setDescription('Type to search')
+            .setAutocomplete(true)),
+        new discord_js_1.SlashCommandBuilder()
+            .setName('brandvinted')
             .setDescription('Search with autocomplete')
             .addStringOption(option => option.setName('query')
             .setDescription('Type to search')

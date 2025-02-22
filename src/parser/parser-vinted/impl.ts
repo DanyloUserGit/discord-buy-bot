@@ -15,7 +15,7 @@ export class ParserVintedImpl implements ParserVinted{
     public urls: string[] = [];
     private base: string[];
     public countries: Country[];
-    private filter: Filter | null = null;
+    public filter: Filter | null = null;
     public document: string | null = null;
     public item: Item | null = null;
     private timer: ProcessTimer;

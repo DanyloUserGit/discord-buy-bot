@@ -1,6 +1,8 @@
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, TextChannel } from "discord.js";
 import { startButtonsPannel } from "../bot-interface/vinted";
 import { brandsOlx } from "../parser/parser-olx/contracts/types";
+import { brandsShafa, brandsValuesShafa } from "../parser/parser-shafa/contracts/types";
+import { brands } from "../parser/parser-vinted/contracts/types";
 
 export async function clearChannel(channel: TextChannel) {
     try {
@@ -17,6 +19,18 @@ export async function clearChannel(channel: TextChannel) {
 export async function autocomplete(interaction:  AutocompleteInteraction) {
   const focusedValue = interaction.options.getFocused(); 
   const filtered = brandsOlx.filter(brand => brand.toLowerCase().includes(focusedValue.toLowerCase()));
+
+  await interaction.respond(filtered.slice(0, 25).map(brand => ({ name: brand, value: brand })));
+}
+export async function autocompleteShafa(interaction:  AutocompleteInteraction) {
+  const focusedValue = interaction.options.getFocused(); 
+  const filtered = brandsValuesShafa.filter(brand => brand.toLowerCase().includes(focusedValue.toLowerCase()));
+
+  await interaction.respond(filtered.slice(0, 25).map(brand => ({ name: brand, value: brand })));
+}
+export async function autocompleteVinted(interaction:  AutocompleteInteraction) {
+  const focusedValue = interaction.options.getFocused(); 
+  const filtered = brands.filter(brand => brand.toLowerCase().includes(focusedValue.toLowerCase()));
 
   await interaction.respond(filtered.slice(0, 25).map(brand => ({ name: brand, value: brand })));
 }

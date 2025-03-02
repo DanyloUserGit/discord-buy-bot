@@ -41,9 +41,8 @@ const cheerio = __importStar(require("cheerio"));
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const logger_1 = require("../../logger");
 const impl_1 = require("../../process-timer/impl");
-const types_1 = require("./contracts/types");
-const axios_1 = __importDefault(require("axios"));
 const impl_2 = require("../../utils/conventer/impl");
+const types_1 = require("./contracts/types");
 class ParserVintedImpl {
     constructor() {
         this.urls = [];
@@ -51,7 +50,8 @@ class ParserVintedImpl {
         this.document = null;
         this.item = null;
         this.startable = false;
-        this.oauth_token = "";
+        this.oauth_token = null;
+        this.previous_items = {};
         this.timer = new impl_1.ProcessTimerImpl();
         this.conventer = new impl_2.ConventerImpl();
         this.base = [
@@ -61,10 +61,49 @@ class ParserVintedImpl {
         ];
         this.countries = ['UK', 'PL', 'GE'];
     }
-    setOauthToken(token) {
-        this.oauth_token = token;
+    setOauthToken(token, country) {
+        this.oauth_token = { PL: null, GE: null, UK: null };
+        if (this.oauth_token) {
+            switch (country) {
+                case "PL":
+                    this.oauth_token = { PL: token, GE: this.oauth_token?.GE, UK: this.oauth_token?.UK };
+                    break;
+                case "GE":
+                    this.oauth_token = { PL: this.oauth_token?.PL, GE: token, UK: this.oauth_token?.UK };
+                    break;
+                case "UK":
+                    this.oauth_token = { PL: this.oauth_token?.PL, GE: this.oauth_token?.GE, UK: token };
+                    break;
+                default:
+                    break;
+            }
+        }
     }
     ;
+    createPublicFilter() {
+        if (this.filter) {
+            const keysToRemove = ['order', 'disabled_personalization', 'page', 'time'];
+            const transformedFilters = Object.entries(this.filter)
+                .filter(([key]) => !keysToRemove.includes(key))
+                .map(([key, value]) => {
+                if (key === 'brand_ids' && Array.isArray(value)) {
+                    return "Brands=" + value.map(brandId => `${types_1.brandMapPrettier[brandId] || brandId}`).join(',');
+                }
+                const catalogMaps = [types_1.menClothingMapPrettier, types_1.menAccesoriesMapPrettier, types_1.womenClothingMapPrettier, types_1.womenAccesoriesMapPrettier];
+                if (key === 'catalog' && Array.isArray(value)) {
+                    return value.map(catalogId => {
+                        let catalogName = catalogMaps
+                            .map(map => map[catalogId])
+                            .find(name => name !== undefined);
+                        return `catalog=${catalogName || catalogId}`;
+                    }).join('\n');
+                }
+                return `${key}=${encodeURIComponent(value)}`;
+            });
+            return transformedFilters.join('\n');
+        }
+        return '';
+    }
     generateUrl(current) {
         if (this.filter) {
             const filterKeys = Object.keys(this.filter);
@@ -197,8 +236,18 @@ class ParserVintedImpl {
                 await this.connect(url);
                 await this.parse(requestTime, country);
                 this.timer.end();
-                if (this.item)
-                    return this.item;
+                if (this.item) {
+                    if (this.previous_items[country]?.id == this.item?.id) {
+                        return null;
+                    }
+                    else {
+                        this.previous_items = {
+                            ...this.previous_items,
+                            [country]: this.item
+                        };
+                        return this.item;
+                    }
+                }
             }
         }
         catch (error) {
@@ -206,44 +255,5 @@ class ParserVintedImpl {
         }
     }
     ;
-    async autobuy(item) {
-        try {
-            if (item && this.oauth_token.length) {
-                let requestedUrl = "";
-                let requestedToken = "";
-                if (item.country === "PL") {
-                    requestedUrl = this.base[1];
-                }
-                else if (item.country === "GE") {
-                    requestedUrl = this.base[2];
-                }
-                else {
-                    requestedUrl = this.base[0];
-                }
-                const itemResponse = await axios_1.default.get(`${requestedUrl}api/v2/items/${item.id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${requestedToken}`
-                    }
-                });
-                if (!itemResponse.data.item) {
-                    console.log('❌ Товар не знайдено!');
-                    return;
-                }
-                await axios_1.default.post(`${requestedUrl}api/v2/orders`, {
-                    item_id: item.id,
-                    shipping_option_id: itemResponse.data.item.shipping_options[0].id,
-                    payment_method: 'credit_card'
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${requestedToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-            }
-        }
-        catch (error) {
-            logger_1.logger.error(error);
-        }
-    }
 }
 exports.ParserVintedImpl = ParserVintedImpl;

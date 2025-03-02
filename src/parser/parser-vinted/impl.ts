@@ -3,13 +3,12 @@ import puppeteer from 'puppeteer';
 import { logger } from '../../logger';
 import { ProcessTimer } from '../../process-timer';
 import { ProcessTimerImpl } from '../../process-timer/impl';
-import { Filter, Item } from './contracts';
-import { Country, countryToCurrency } from './contracts/types';
-import { ParserVinted } from './index';
-import axios from 'axios';
-import { Current } from '../../utils/conventer/contracts';
 import { Conventer } from '../../utils/conventer';
+import { Current } from '../../utils/conventer/contracts';
 import { ConventerImpl } from '../../utils/conventer/impl';
+import { Filter, Item, Token } from './contracts';
+import { brandMapPrettier, Country, countryToCurrency, menAccesoriesMapPrettier, menClothingMapPrettier, womenAccesoriesMapPrettier, womenClothingMapPrettier } from './contracts/types';
+import { ParserVinted } from './index';
 
 export class ParserVintedImpl implements ParserVinted{
     public urls: string[] = [];
@@ -21,13 +20,13 @@ export class ParserVintedImpl implements ParserVinted{
     private timer: ProcessTimer;
     private conventer: Conventer;
     public startable: boolean = false;
-    public oauth_token: string = "";
+    public oauth_token: Token | null = null;
+    public previous_items: any = {};
     
 
     constructor () {
         this.timer = new ProcessTimerImpl();
         this.conventer = new ConventerImpl();
-
         this.base = [
             "https://vinted.co.uk/",
             "https://www.vinted.pl/",
@@ -35,9 +34,53 @@ export class ParserVintedImpl implements ParserVinted{
         ];
         this.countries = ['UK', 'PL', 'GE'];
     }
-    setOauthToken(token: string){
-        this.oauth_token = token;
+    setOauthToken(token: string, country: Country){
+        this.oauth_token = {PL: null, GE: null, UK: null}
+        if(this.oauth_token){
+            switch (country) {
+                case "PL":
+                    this.oauth_token = {PL: token, GE: this.oauth_token?.GE, UK: this.oauth_token?.UK};
+                break;
+                case "GE":
+                    this.oauth_token = {PL: this.oauth_token?.PL, GE: token, UK: this.oauth_token?.UK};
+                break;
+                case "UK":
+                    this.oauth_token = {PL: this.oauth_token?.PL, GE: this.oauth_token?.GE, UK: token};
+                break;
+                default:
+                    break;
+            }
+        }
     };
+    createPublicFilter() {
+        if (this.filter) {
+            const keysToRemove = ['order', 'disabled_personalization', 'page', 'time'];
+    
+            const transformedFilters = Object.entries(this.filter)
+            .filter(([key]) => !keysToRemove.includes(key)) 
+            .map(([key, value]) => {
+                if (key === 'brand_ids' && Array.isArray(value)) {
+                    return "Brands=" + value.map(brandId => `${brandMapPrettier[brandId] || brandId}`).join(',');
+                }
+                const catalogMaps = [menClothingMapPrettier, menAccesoriesMapPrettier, womenClothingMapPrettier, womenAccesoriesMapPrettier];
+                if (key === 'catalog' && Array.isArray(value)) {
+                    return value.map(catalogId => {
+                        let catalogName = catalogMaps
+                            .map(map => map[catalogId]) 
+                            .find(name => name !== undefined); 
+
+                        return `catalog=${catalogName || catalogId}`;
+                    }).join('\n');
+                }
+
+                return `${key}=${encodeURIComponent(value)}`; 
+            });
+                
+            return transformedFilters.join('\n'); 
+        }
+        return '';
+    }
+    
     generateUrl(current: Current){
         if(this.filter){
             const filterKeys = Object.keys(this.filter);
@@ -175,54 +218,78 @@ export class ParserVintedImpl implements ParserVinted{
                 await this.connect(url);
                 await this.parse(requestTime, country);
                 this.timer.end()
-                
-                if(this.item)
-                    return this.item;
+                if(this.item){
+                    if(this.previous_items[country]?.id == this.item?.id){
+                        return null;
+                    }else{
+                        this.previous_items = {
+                            ...this.previous_items,
+                            [country]: this.item
+                        }
+    
+                        return this.item;
+                    }
+                }
             }
         } catch (error) {
             logger.error(error);
         }
     };
-    async autobuy(item: Item){
-        try {
-            if(item && this.oauth_token.length){
-                let requestedUrl: string = "";
-                let requestedToken: string = "";
+    // async autobuy(itemId:string, country: Country){
+    //     try {
+    //         if(this.oauth_token){
+    //             let requestedUrl: string = "";
+    //             let requestedToken: string = "";
 
-                if(item.country === "PL"){
-                    requestedUrl = this.base[1];
-                }else if(item.country === "GE"){
-                    requestedUrl = this.base[2];
-                } else{
-                    requestedUrl = this.base[0];
-                }
-                const itemResponse = await axios.get(`${requestedUrl}api/v2/items/${item.id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${requestedToken}`
-                    }
-                });
+    //             if(country === "PL" && this.oauth_token.PL){
+    //                 requestedUrl = this.base[1];
+    //                 requestedToken = this.oauth_token.PL
+    //             }else if(country === "GE" && this.oauth_token.GE){
+    //                 requestedUrl = this.base[2];
+    //                 requestedToken = this.oauth_token.GE
+    //             } else if(country === "UK" && this.oauth_token.UK){
+    //                 requestedUrl = this.base[0];
+    //                 requestedToken = this.oauth_token.UK
+    //             }
+    //             console.log('Токен авторизації:', requestedToken);
+    //             console.log("URL: ", `${requestedUrl}api/v2/items/${itemId}`);
+    //             const itemResponse = await axios.get(`${requestedUrl}api/v2/items/${itemId}`, {
+    //                 headers: {
+    //                     'Cookie': `access_token_web=${requestedToken}`,
+    //                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+    //                     'Accept': 'application/json'
+    //                 },
+    //                 withCredentials: true,
+    //             });
         
-                if (!itemResponse.data.item) {
-                    console.log('❌ Товар не знайдено!');
-                    return;
-                }
-                await axios.post(
-                    `${requestedUrl}api/v2/orders`,
-                    {
-                        item_id: item.id,
-                        shipping_option_id: itemResponse.data.item.shipping_options[0].id, // Вибираємо перший варіант доставки
-                        payment_method: 'credit_card' // Можливі варіанти: 'credit_card', 'paypal'
-                    },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${requestedToken}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-            }
-        } catch (error) {
-            logger.error(error);
-        }
-    }
+    //             if (!itemResponse.data.item) {
+    //                 console.log('❌ Товар не знайдено!');
+    //                 return;
+    //             }
+    //             console.log("Buy URL: ", `${requestedUrl}api/v2/orders`)
+    //             const res = await axios.post(
+    //                 `${requestedUrl}api/v2/orders`,
+    //                 {
+    //                     item_id: itemId,
+    //                     user_id: itemResponse.data.item.user_id,
+    //                     currency: itemResponse.data.item.currency,
+    //                     price_numeric: itemResponse.data.item.price_numeric,
+    //                     payment_method: itemResponse.data.item.user.accepted_pay_in_methods.find((item: any)=>item.code=="WALLET").id,
+
+    //                 },
+    //                 {
+    //                     headers: {
+    //                         'Cookie': `access_token_web=${requestedToken}`,
+    //                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+    //                         'Content-Type': 'application/json'
+    //                     },
+    //                     withCredentials: true,
+    //                 }
+    //             );
+    //             console.log("RES: ", res.data);
+    //         }
+    //     } catch (error: any) {
+    //         logger.error(error);
+    //     }
+    // }
 }

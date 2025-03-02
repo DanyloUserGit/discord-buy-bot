@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.womenAccesoriesMap = exports.womenClothingMap = exports.menAccesoriesMap = exports.menClothingMap = exports.womenIds = exports.menIds = exports.womenNames = exports.menNames = exports.gender = exports.brandMap = exports.brands = exports.brandIds = exports.countryToCurrency = void 0;
+exports.womenAccesoriesMapPrettier = exports.womenClothingMapPrettier = exports.menAccesoriesMapPrettier = exports.menClothingMapPrettier = exports.womenAccesoriesMap = exports.womenClothingMap = exports.menAccesoriesMap = exports.menClothingMap = exports.womenIds = exports.menIds = exports.womenNames = exports.menNames = exports.gender = exports.brandMapPrettier = exports.brandMap = exports.brands = exports.brandIds = exports.countryToCurrency = void 0;
 exports.countryToCurrency = {
     PL: "PLN",
     GE: "EUR",
@@ -23,6 +23,7 @@ exports.brands = [
     "Levi's", "FB Sister", "Puma", "TU", "River Island", "Mayoral", "ASOS", "Lindex"
 ];
 exports.brandMap = Object.fromEntries(exports.brands.map((brand, index) => [brand.toLowerCase(), exports.brandIds[index]]));
+exports.brandMapPrettier = Object.fromEntries(exports.brandIds.map((brand, index) => [brand, exports.brands[index]]));
 exports.gender = ['Men', 'Women'];
 exports.menNames = {
     clothing: ['Jeans', 'Outerwear', 'Tops & t-shirts', 'Suits & blazers', 'Jumpers & sweaters', 'Trousers',
@@ -54,3 +55,7 @@ exports.menClothingMap = Object.fromEntries(exports.menNames.clothing.map((cloth
 exports.menAccesoriesMap = Object.fromEntries(exports.menNames.accesories.map((accesories, index) => [accesories.toLowerCase(), exports.menIds.accesories[index]]));
 exports.womenClothingMap = Object.fromEntries(exports.womenNames.clothing.map((clothing, index) => [clothing.toLowerCase(), exports.womenIds.clothing[index]]));
 exports.womenAccesoriesMap = Object.fromEntries(exports.womenNames.accesories.map((accesories, index) => [accesories.toLowerCase(), exports.womenIds.accesories[index]]));
+exports.menClothingMapPrettier = Object.fromEntries(exports.menIds.clothing.map((clothing, index) => [clothing, exports.menNames.clothing[index]]));
+exports.menAccesoriesMapPrettier = Object.fromEntries(exports.menIds.accesories.map((clothing, index) => [clothing, exports.menNames.accesories[index]]));
+exports.womenClothingMapPrettier = Object.fromEntries(exports.womenIds.clothing.map((clothing, index) => [clothing, exports.womenNames.clothing[index]]));
+exports.womenAccesoriesMapPrettier = Object.fromEntries(exports.womenIds.accesories.map((clothing, index) => [clothing, exports.womenNames.accesories[index]]));

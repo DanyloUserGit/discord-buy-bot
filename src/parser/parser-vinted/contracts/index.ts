@@ -11,6 +11,11 @@ export interface Filter {
     currency?: Currency;
     time:number;
 }
+export interface Token {
+    PL:string | null;
+    UK:string | null;
+    GE:string | null;
+}
 export interface Item {
     id: string;
     price: string;

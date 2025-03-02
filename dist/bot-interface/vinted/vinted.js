@@ -60,10 +60,24 @@ function setupEventHandlersVinted(client) {
                 await channel.send({ embeds: [_1.filterPannel.embed], components: [_1.filterPannel.buttons] });
         }
         else if (interaction.customId === "button_token" && channel instanceof discord_js_1.TextChannel) {
+            await channel.send({ embeds: [_1.tokensPannel.embed], components: [_1.tokensPannel.buttons] });
+        }
+        else if ((interaction.customId === "button_PL" || interaction.customId === "button_GE"
+            || interaction.customId === "button_UK") && channel instanceof discord_js_1.TextChannel) {
             await interaction.reply({ content: "Please enter your token:", ephemeral: true });
             const collector = channel.createMessageCollector({ time: 30000 });
+            let country;
+            if (interaction.customId === "button_PL") {
+                country = "PL";
+            }
+            else if (interaction.customId === "button_GE") {
+                country = "GE";
+            }
+            else if (interaction.customId === "button_UK") {
+                country = "UK";
+            }
             collector.on("collect", async (msg) => {
-                parser.setOauthToken(msg.content);
+                parser.setOauthToken(msg.content, country);
                 collector.stop();
                 await channel.send({ embeds: [_1.startButtonsPannel.embed], components: [_1.startButtonsPannel.buttons] });
             });
@@ -135,7 +149,7 @@ function setupEventHandlersVinted(client) {
                                 .setURL(item.link)
                                 .setDescription(item.size)
                                 .setImage(item.image_url)
-                                .addFields({ name: '💰 Price', value: `${priceEur.toFixed(2).toString()} €`, inline: true }, { name: 'Time', value: `${(Math.floor(new Date().getTime() / 1000.0) - item.time)}s`, inline: true });
+                                .addFields({ name: '💰 Price', value: `${priceEur.toFixed(2).toString()} €`, inline: true }, { name: 'Time', value: `${(Math.floor(new Date().getTime() / 1000.0) - item.time)}s`, inline: true }, { name: "Filter", value: `${parser.filter ? parser.createPublicFilter() : ""}` });
                             if (channel instanceof discord_js_1.TextChannel) {
                                 await channel.send({ embeds: [card] });
                                 await channel.send({ components: [_1.stopBot.buttons] });
@@ -319,10 +333,10 @@ function setupEventHandlersVinted(client) {
                 await interaction.reply(`You searched for: **${brand}**`);
                 if (brand && parser.filter) {
                     if (parser.filter?.brand_ids) {
-                        parser.filter.brand_ids.push(types_1.brandMap[brand]);
+                        parser.filter.brand_ids = [...parser.filter.brand_ids, types_1.brandMap[brand.toLowerCase()]];
                     }
                     else {
-                        parser.filter.brand_ids = [types_1.brandMap[brand]];
+                        parser.filter.brand_ids = [types_1.brandMap[brand.toLowerCase()]];
                     }
                 }
                 if (channel instanceof discord_js_1.TextChannel)

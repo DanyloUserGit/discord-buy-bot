@@ -29,6 +29,9 @@ export const brandIds: number[] = [
   export const brandMap: Record<string, number> = Object.fromEntries(
     brands.map((brand, index) => [brand.toLowerCase(), brandIds[index]])
   );
+  export const brandMapPrettier: Record<number, string> = Object.fromEntries(
+    brandIds.map((brand, index) => [brand, brands[index]])
+  );
   export const gender: string[] = ['Men', 'Women'];
   export const menNames: {clothing: string[], accesories: string[]} = {
     clothing:['Jeans', 'Outerwear', 'Tops & t-shirts', 'Suits & blazers', 'Jumpers & sweaters', 'Trousers',
@@ -67,4 +70,17 @@ export const brandIds: number[] = [
   );
   export const womenAccesoriesMap: Record<string, number> = Object.fromEntries(
     womenNames.accesories.map((accesories, index) => [accesories.toLowerCase(), womenIds.accesories[index]])
+  );
+
+  export const menClothingMapPrettier: Record<number, string> = Object.fromEntries(
+    menIds.clothing.map((clothing, index) => [clothing, menNames.clothing[index]])
+  );
+  export const menAccesoriesMapPrettier: Record<number, string> = Object.fromEntries(
+    menIds.accesories.map((clothing, index) => [clothing, menNames.accesories[index]])
+  );
+  export const womenClothingMapPrettier: Record<number, string> = Object.fromEntries(
+    womenIds.clothing.map((clothing, index) => [clothing, womenNames.clothing[index]])
+  );
+  export const womenAccesoriesMapPrettier: Record<number, string> = Object.fromEntries(
+    womenIds.accesories.map((clothing, index) => [clothing, womenNames.accesories[index]])
   );

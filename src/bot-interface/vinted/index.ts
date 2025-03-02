@@ -15,6 +15,17 @@ export const startButtonsPannel:ButtonsPanel = {
         new ButtonBuilder().setCustomId("button_reset").setLabel("Reset filter").setStyle(ButtonStyle.Danger)
     )
 }
+export const tokensPannel:ButtonsPanel = {
+  embed: new EmbedBuilder()
+  .setColor("#0099ff")
+  .setTitle("Set token")
+  .setDescription("Click a button below!"),
+  buttons: new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder().setCustomId("button_PL").setLabel("PL").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId("button_GE").setLabel("GE").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId("button_UK").setLabel("UK").setStyle(ButtonStyle.Primary),
+  )
+}
 export const stopBot:ButtonsPanel = {
     embed: new EmbedBuilder()
     .setColor("#0099ff")
@@ -27,9 +38,9 @@ export const stopBot:ButtonsPanel = {
 export const To:ButtonsPanel = {
   embed: new EmbedBuilder()
   .setColor("#0099ff")
-  .setTitle("To $:"),
+  .setTitle("To €:"),
   buttons: new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId("button_price_to").setLabel("To $:").setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId("button_price_to").setLabel("To €:").setStyle(ButtonStyle.Success),
   )
 }
 export const filterPannel:ButtonsPanel = {

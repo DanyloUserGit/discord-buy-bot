@@ -1,10 +1,10 @@
 import { Client, DMChannel, EmbedBuilder, Events, Message, TextChannel } from "discord.js";
 import { ParserVintedImpl } from "../../parser/parser-vinted/impl";
 import { ConventerImpl } from "../../utils/conventer/impl";
-import { startButtonsPannel, filterPannel, menClothingPannel, menAccessoriesPannel, men, women, womenClothingPannel, womenAccessoriesPannel, stopBot, brandsPannel, filterPannelNext, To } from ".";
+import { startButtonsPannel, filterPannel, menClothingPannel, menAccessoriesPannel, men, women, womenClothingPannel, womenAccessoriesPannel, stopBot, brandsPannel, filterPannelNext, To, tokensPannel } from ".";
 import { AppConfig } from "../../config";
 import { logger } from "../../logger";
-import { brandMap, menClothingMap, menAccesoriesMap, womenClothingMap, womenAccesoriesMap } from "../../parser/parser-vinted/contracts/types";
+import { brandMap, menClothingMap, menAccesoriesMap, womenClothingMap, womenAccesoriesMap, Country } from "../../parser/parser-vinted/contracts/types";
 import { autocompleteVinted, clearChannel } from "../../utils/commands";
 
 const parser = new ParserVintedImpl();
@@ -56,12 +56,22 @@ export function setupEventHandlersVinted(client: Client) {
             });
             if (channel instanceof TextChannel)
                 await channel.send({ embeds: [filterPannel.embed], components: [filterPannel.buttons] }); 
-        }else if (interaction.customId === "button_token" && channel instanceof TextChannel) {
+        }else if(interaction.customId === "button_token" && channel instanceof TextChannel){
+            await channel.send({ embeds: [tokensPannel.embed], components: [tokensPannel.buttons] }); 
+        }else if ((interaction.customId === "button_PL" || interaction.customId === "button_GE" 
+            || interaction.customId === "button_UK") && channel instanceof TextChannel) {
             await interaction.reply({ content: "Please enter your token:", ephemeral: true });
             const collector = channel.createMessageCollector({ time: 30000 });
-    
+            let country:Country;
+            if(interaction.customId === "button_PL"){
+                country = "PL";
+            }else if(interaction.customId === "button_GE"){
+                country = "GE";
+            }else if(interaction.customId === "button_UK"){
+                country = "UK";
+            }
             collector.on("collect", async (msg) => {
-                parser.setOauthToken(msg.content);
+                parser.setOauthToken(msg.content, country);
                 collector.stop();
                 await channel.send({ embeds: [startButtonsPannel.embed], components: [startButtonsPannel.buttons] });
             });
@@ -126,7 +136,8 @@ export function setupEventHandlersVinted(client: Client) {
                                 .setImage(item.image_url)
                                 .addFields(
                                     { name: '💰 Price', value: `${priceEur.toFixed(2).toString()} €`, inline: true },
-                                    { name: 'Time', value: `${(Math.floor(new Date().getTime()/1000.0)-item.time)}s`, inline: true }
+                                    { name: 'Time', value: `${(Math.floor(new Date().getTime()/1000.0)-item.time)}s`, inline: true },
+                                    { name: "Filter", value: `${parser.filter ? parser.createPublicFilter() : ""}`}
                                 );
                             if (channel instanceof TextChannel) {
                                 await channel.send({ embeds: [card] });
@@ -327,9 +338,9 @@ export function setupEventHandlersVinted(client: Client) {
                     await interaction.reply(`You searched for: **${brand}**`);
                     if(brand && parser.filter){
                         if(parser.filter?.brand_ids){
-                            parser.filter.brand_ids.push(brandMap[brand]);
+                            parser.filter.brand_ids = [...parser.filter.brand_ids, brandMap[brand.toLowerCase()]];
                         }else{
-                            parser.filter.brand_ids = [brandMap[brand]];
+                            parser.filter.brand_ids = [brandMap[brand.toLowerCase()]];
                         }
                     }
                     if (channel instanceof TextChannel) 

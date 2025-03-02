@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchBrandModal = exports.womenAccessoriesPannel = exports.womenClothingPannel = exports.women = exports.men = exports.menAccessoriesPannel = exports.menClothingPannel = exports.brandsPannel = exports.filterPannelNext = exports.filterPannel = exports.To = exports.stopBot = exports.startButtonsPannel = void 0;
+exports.SearchBrandModal = exports.womenAccessoriesPannel = exports.womenClothingPannel = exports.women = exports.men = exports.menAccessoriesPannel = exports.menClothingPannel = exports.brandsPannel = exports.filterPannelNext = exports.filterPannel = exports.To = exports.stopBot = exports.tokensPannel = exports.startButtonsPannel = void 0;
 const builders_1 = require("@discordjs/builders");
 const discord_js_1 = require("discord.js");
 const types_1 = require("../../parser/parser-vinted/contracts/types");
@@ -11,6 +11,13 @@ exports.startButtonsPannel = {
         .setDescription("Click a button below!"),
     buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_start").setLabel("Start bot").setStyle(discord_js_1.ButtonStyle.Success), new builders_1.ButtonBuilder().setCustomId("button_filter").setLabel("Set filter").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_token").setLabel("Set token").setStyle(discord_js_1.ButtonStyle.Secondary), new builders_1.ButtonBuilder().setCustomId("button_reset").setLabel("Reset filter").setStyle(discord_js_1.ButtonStyle.Danger))
 };
+exports.tokensPannel = {
+    embed: new discord_js_1.EmbedBuilder()
+        .setColor("#0099ff")
+        .setTitle("Set token")
+        .setDescription("Click a button below!"),
+    buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_PL").setLabel("PL").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_GE").setLabel("GE").setStyle(discord_js_1.ButtonStyle.Primary), new builders_1.ButtonBuilder().setCustomId("button_UK").setLabel("UK").setStyle(discord_js_1.ButtonStyle.Primary))
+};
 exports.stopBot = {
     embed: new discord_js_1.EmbedBuilder()
         .setColor("#0099ff")
@@ -20,8 +27,8 @@ exports.stopBot = {
 exports.To = {
     embed: new discord_js_1.EmbedBuilder()
         .setColor("#0099ff")
-        .setTitle("To $:"),
-    buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_price_to").setLabel("To $:").setStyle(discord_js_1.ButtonStyle.Success))
+        .setTitle("To €:"),
+    buttons: new discord_js_1.ActionRowBuilder().addComponents(new builders_1.ButtonBuilder().setCustomId("button_price_to").setLabel("To €:").setStyle(discord_js_1.ButtonStyle.Success))
 };
 exports.filterPannel = {
     embed: new discord_js_1.EmbedBuilder()
